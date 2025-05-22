@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Main Courante - CS Mareuil-sur-Ourcq</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Rubik', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      background: #d32f2f;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+    header h1 {
+      margin: 0.5rem 0;
+    }
+    main {
+      flex-grow: 1;
+      padding: 2rem 1rem;
+      max-width: 600px;
+      margin: auto;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    label {
+      font-weight: bold;
+      text-align: left;
+    }
+    input, textarea {
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    button {
+      background: #1976d2;
+      color: white;
+      padding: 1rem;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #1565c0;
+    }
+    .back-button {
+      display: inline-block;
+      margin-top: 2rem;
+      background: #b71c1c;
+      color: white;
+      padding: 1rem 2rem;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: background 0.3s;
+      text-align: center;
+    }
+    .back-button:hover {
+      background: #a00f0f;
+    }
+    .message {
+      background: #f1f1f1;
+      border-left: 5px solid #1976d2;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      text-align: left;
+    }
+    .message strong {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📝 Main Courante</h1>
+  </header>
+
+  <main>
+    <form id="mainCouranteForm">
+      <label for="startDate">Date de début</label>
+      <input type="date" id="startDate" required />
+
+      <label for="endDate">Date de fin</label>
+      <input type="date" id="endDate" required />
+
+      <label for="author">Rédacteur</label>
+      <input type="text" id="author" placeholder="Prénom Nom" required />
+
+      <label for="content">Message</label>
+      <textarea id="content" placeholder="Renseigner les informations..." required></textarea>
+
+      <label for="file">Pièce jointe</label>
+      <input type="file" id="file">
+
+      <button type="submit">Enregistrer</button>
+    </form>
+
+    <div id="messagesContainer"></div>
+
+    <a href="index.html" class="back-button">⬅ Retour à l'accueil</a>
+  </main>
+
+  <script>
+    const form = document.getElementById('mainCouranteForm');
+    const container = document.getElementById('messagesContainer');
+
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxh9p5X93daig2toC9fBkVNOrON9EjoNgcIfaPZl9VtpcfLWEMctuZsFrmEiq82zscUCw/exec';
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const author = document.getElementById('author').value;
+      const content = document.getElementById('content').value;
+      const fileInput = document.getElementById('file');
+      const file = fileInput.files[0];
+
+      // Conversion du fichier en base64
+      const reader = new FileReader();
+      reader.onload = async function () {
+        const base64Data = reader.result.split(',')[1];
+
+        const formData = new FormData();
+        formData.append('data', JSON.stringify({ startDate, endDate, author, content, fileName: file.name }));
+        formData.append('fileContent', base64Data);
+        formData.append('mimeType', file.type);
+
+        try {
+          const response = await fetch(scriptURL, {
+            method: 'POST',
+            body: formData
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            addMessageToDOM(startDate, endDate, author, content, result.fileUrl);
+            form.reset();
+          } else {
+            alert("Erreur lors de l'enregistrement.");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Erreur réseau.");
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function addMessageToDOM(start, end, author, text, fileUrl) {
+      const today = new Date().toISOString().split('T')[0];
+      if (end < today) return;
+
+      const div = document.createElement('div');
+      div.className = 'message';
+      div.innerHTML = `
+        <strong>${start} ➡ ${end} — ${author}</strong>
+        <p>${text.replace(/\n/g, '<br>')}</p>
+        <p><a href="${fileUrl}" target="_blank">📎 Voir la pièce jointe</a></p>
+      `;
+      container.prepend(div);
+    }
+  </script>
+</body>
+</html>
