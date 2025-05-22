@@ -3,27 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VTUPA - Suivi Kilométrage</title>
+  <title>VSAV - Suivi Kilométrage</title>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Formulaire VSAV</h1>
+  <header>
+    <h1>Formulaire VSAV</h1>
+  </header>
 
-  <form id="vsav-form">
-    <label for="nom">Prénom et Nom</label>
-    <input type="text" id="nom" name="nom" required>
+  <main>
+    <form id="vsav-form">
+      <label for="nom">Prénom et Nom</label>
+      <input type="text" id="nom" name="nom" required>
 
-    <label for="motif">Motif de Sortie</label>
-    <textarea id="motif" name="motif" rows="2" required></textarea>
+      <label for="motif">Motif de Sortie</label>
+      <textarea id="motif" name="motif" rows="2" required></textarea>
 
-    <label for="km">Kilométrage Actuel</label>
-    <input type="number" id="km" name="km" required>
+      <label for="km">Kilométrage Actuel</label>
+      <input type="number" id="km" name="km" required>
 
-    <button type="submit">Valider</button>
-  </form>
+      <button type="submit">Valider</button>
+    </form>
 
-  <a href="kilometrage.html" class="back-button">⬅ Retour</a>
+    <a href="kilometrage.html" class="back-button">⬅ Retour</a>
+  </main>
 
   <script>
     document.getElementById("vsav-form").addEventListener("submit", function(e) {
